@@ -106,18 +106,22 @@ class JMDSAmendoasLoader(object):
         return self._build_batches_for(batch_size, self.test_dataset)
 
     def _build_batches_for(self, batch_size, dataset):
-        batches = [
-            [
-                bid,
-                torch.stack([
+        def mk_get_data(bid):
+            def get_data():
+                return torch.stack([
                     d[1]
                     for d in dataset[(bid * batch_size):((bid + 1) * batch_size)]
-                ]).float(),
-                torch.stack([
+                ]).float()
+            return get_data
+        def mk_get_target(bid):
+            def get_target():
+                return torch.stack([
                     d[0]
                     for d in dataset[(bid * batch_size):((bid + 1) * batch_size)]
-                ]).float(),
-            ]
+                ]).float()
+            return get_target
+        batches = [
+            [bid, mk_get_data(bid),mk_get_target(bid),]
             for bid in xrange(int(len(dataset) / batch_size))
         ]
         return batches

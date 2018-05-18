@@ -10,7 +10,11 @@ from torch.autograd import Variable
 
 def train(model, optimizer, criterion, epoch, train_batches):
     model.train()
-    for batch_idx, data, target in train_batches:
+    for batch_idx, get_data, get_target in train_batches:
+
+        data = get_data()
+        target = get_target()
+
         l2_reg = Variable(torch.FloatTensor(1), requires_grad=True)
         data, target = Variable(data), Variable(target)
 
@@ -22,10 +26,11 @@ def train(model, optimizer, criterion, epoch, train_batches):
         optimizer.zero_grad()
         output = model(data)
 
+        l2_reg_copy = l2_reg.clone()
         for param in model.parameters():
-            l2_reg += (param * param).sum()
+            l2_reg_copy += (param * param).sum()
         loss = criterion(output, target) + \
-            (l2_reg * (model.l2_reg_increment * epoch))
+            (l2_reg_copy * (model.l2_reg_increment * epoch))
 
         loss.backward()
         optimizer.step()
