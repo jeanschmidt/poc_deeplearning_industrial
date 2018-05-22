@@ -85,12 +85,12 @@ def test(test_dataset, model, criterion):
 def test_train(train_dataset, model, criterion):
     total = {}
 
-    for idx in xrange(len(train_dataset)):
+    for _, get_data, get_target in train_dataset:
         ret = test_data(
             model,
             criterion,
-            Variable(train_dataset[idx][1], volatile=True),
-            Variable(train_dataset[idx][2])
+            Variable(get_data(), volatile=True),
+            Variable(get_target())
         )
         _sum_dicts(total, ret)
 
